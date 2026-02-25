@@ -1,6 +1,17 @@
 import type { JSX } from "react";
 
-export type ToolEntry = { id: string; label: string; icon: string; color: string; prompt?: string };
+export type FormField = { key: string; label: string; placeholder: string; type?: "text" | "textarea" };
+
+export type ToolEntry = {
+  id: string;
+  label: string;
+  icon: string;
+  color: string;
+  prompt?: string;
+  fields?: FormField[];
+  noArgs?: boolean;
+  mcpQuery?: { toolName: string; placeholder: string };
+};
 
 export type McpToolEntry = {
   id: string;
@@ -13,20 +24,84 @@ export type McpToolEntry = {
 };
 
 export const LARK_TOOLS: ToolEntry[] = [
-  { id: "add-contact", label: "Add Contact", icon: "user-plus", color: "#10b981", prompt: "add contact [name] [phone]" },
-  { id: "list-contacts", label: "Contacts", icon: "users", color: "#3b82f6", prompt: "list contacts" },
-  { id: "remove-contact", label: "Remove Contact", icon: "user-minus", color: "#ef4444", prompt: "remove contact [name]" },
-  { id: "make-call", label: "Call", icon: "phone", color: "#22c55e", prompt: "call [name] and say [message]" },
-  { id: "send-sms", label: "SMS", icon: "message", color: "#6366f1", prompt: "send sms to [name] [message]" },
-  { id: "open-camera", label: "Camera", icon: "camera", color: "#06b6d4", prompt: "open camera" },
-  { id: "group-call", label: "Group Call", icon: "phone-call", color: "#f59e0b", prompt: "group call [names] and say [message]" },
+  {
+    id: "add-contact",
+    label: "Add Contact",
+    icon: "user-plus",
+    color: "#10b981",
+    prompt: "add contact [name] [phone]",
+    fields: [
+      { key: "name", label: "Name", placeholder: "Contact name" },
+      { key: "phone", label: "Phone", placeholder: "+1234567890" },
+    ],
+  },
+  { id: "list-contacts", label: "Contacts", icon: "users", color: "#3b82f6", prompt: "list contacts", noArgs: true },
+  {
+    id: "remove-contact",
+    label: "Remove Contact",
+    icon: "user-minus",
+    color: "#ef4444",
+    prompt: "remove contact [name]",
+    fields: [{ key: "name", label: "Name", placeholder: "Contact to remove" }],
+  },
+  {
+    id: "make-call",
+    label: "Call",
+    icon: "phone",
+    color: "#22c55e",
+    prompt: "call [name] and say [message]",
+    fields: [
+      { key: "to", label: "To", placeholder: "Name or phone" },
+      { key: "message", label: "Message", placeholder: "What to say" },
+    ],
+  },
+  {
+    id: "send-sms",
+    label: "SMS",
+    icon: "message",
+    color: "#6366f1",
+    prompt: "send sms to [name] [message]",
+    fields: [
+      { key: "to", label: "To", placeholder: "Name or phone" },
+      { key: "message", label: "Message", placeholder: "Text to send" },
+    ],
+  },
+  { id: "open-camera", label: "Camera", icon: "camera", color: "#06b6d4", prompt: "open camera", noArgs: true },
+  {
+    id: "group-call",
+    label: "Group Call",
+    icon: "phone-call",
+    color: "#f59e0b",
+    prompt: "group call [names] and say [message]",
+    fields: [
+      { key: "to", label: "Names", placeholder: "Name1, Name2, Name3" },
+      { key: "message", label: "Message", placeholder: "What to say" },
+    ],
+  },
+  {
+    id: "music",
+    label: "Music",
+    icon: "music",
+    color: "#ec4899",
+    mcpQuery: { toolName: "music-player-mcp__play", placeholder: "Search or play a song..." },
+  },
+  {
+    id: "video",
+    label: "YouTube",
+    icon: "video",
+    color: "#ef4444",
+    mcpQuery: { toolName: "youtube-mcp__play", placeholder: "Search or play a video..." },
+  },
+  {
+    id: "message",
+    label: "Agent Chat",
+    icon: "message-square",
+    color: "#8b5cf6",
+    mcpQuery: { toolName: "agent-chat-mcp__list-agents", placeholder: "e.g. list agents, read inbox as [name]..." },
+  },
 ];
 
-export const LARK_MCP_TOOLS: McpToolEntry[] = [
-  { id: "music", label: "Music", icon: "music", color: "#ec4899", toolName: "music-player-mcp__play", placeholder: "Search or play a song..." },
-  { id: "video", label: "Video", icon: "video", color: "#ef4444", toolName: "youtube-mcp__play", placeholder: "Search or play a video..." },
-  { id: "message", label: "Agent Chat", icon: "message-square", color: "#8b5cf6", toolName: "agent-chat-mcp__list-agents", placeholder: "e.g. list agents, read inbox as [name]..." },
-];
+export const LARK_MCP_TOOLS: McpToolEntry[] = [];
 
 export const LARK_ICONS: Record<string, JSX.Element> = {
   "user-plus": (
