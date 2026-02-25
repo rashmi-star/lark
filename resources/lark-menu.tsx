@@ -127,7 +127,13 @@ function LarkMenuContent() {
         </button>
       </div>
 
-      <div style={{ padding: expanded ? "8px 12px 16px" : "8px" }}>
+      <div
+        style={{
+          padding: expanded ? "8px 12px 16px" : "8px",
+          maxHeight: 360,
+          overflowY: "auto",
+        }}
+      >
         {LARK_TOOLS.map((tool, i) => {
           const handleClick = async () => {
             const prompt = tool.prompt || tool.id.replace(/-/g, " ");
@@ -185,6 +191,23 @@ function LarkMenuContent() {
             </div>
           );
         })}
+
+        {expanded && (
+          <div
+            style={{
+              fontSize: 10,
+              fontWeight: 700,
+              color: mutedColor,
+              textTransform: "uppercase",
+              letterSpacing: "0.08em",
+              padding: "12px 12px 6px",
+              marginTop: 4,
+              borderTop: `1px solid ${borderColor}`,
+            }}
+          >
+            Music, Video & Chat
+          </div>
+        )}
 
         {LARK_MCP_TOOLS.map((mcp, i) => {
           const isActive = activeMcp === mcp.id;
