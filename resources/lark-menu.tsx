@@ -39,7 +39,7 @@ function LarkMenuContent() {
   const isDark = theme === "dark";
   const [expanded, setExpanded] = useState(true);
   const [selectedTool, setSelectedTool] = useState<string | null>(null);
-  const [formValues, setFormValues] = useState<Record<string, Record<string, string>>({});
+  const [formValues, setFormValues] = useState<{ [k: string]: { [k: string]: string } }>({});
 
   const bg = isDark
     ? "linear-gradient(135deg, rgba(15,23,42,0.98) 0%, rgba(30,41,59,0.95) 100%)"
@@ -171,7 +171,7 @@ function LarkMenuContent() {
                   setSelectedTool(null);
                 }
               } else if (tool.fields?.length) {
-                const args = tool.fields.reduce((a, f) => ({ ...a, [f.key]: vals[f.key] ?? "" }), {} as Record<string, string>);
+                const args = tool.fields.reduce((a, f) => ({ ...a, [f.key]: vals[f.key] ?? "" }), {} as { [k: string]: string });
                 if (Object.values(args).some((v) => v.trim())) {
                   await callTool?.(tool.id, args);
                   setFormValues((p) => ({ ...p, [tool.id]: {} }));

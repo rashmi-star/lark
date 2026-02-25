@@ -3,7 +3,7 @@ import { z } from "zod";
 
 const propSchema = z.object({
   totalContacts: z.number(),
-  contacts: z.record(z.string(), z.string()).optional(),
+  contacts: z.object({}).catchall(z.string()).optional(),
 });
 
 export const widgetMetadata: WidgetMetadata = {

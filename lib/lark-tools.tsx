@@ -103,7 +103,7 @@ export const LARK_TOOLS: ToolEntry[] = [
 
 export const LARK_MCP_TOOLS: McpToolEntry[] = [];
 
-export const LARK_ICONS: Record<string, JSX.Element> = {
+export const LARK_ICONS: { [key: string]: JSX.Element } = {
   "user-plus": (
     <>
       <path d="M16 21v-2a4 4 0 00-4-4H5a4 4 0 00-4 4v2" />
