@@ -2,6 +2,16 @@ import type { JSX } from "react";
 
 export type ToolEntry = { id: string; label: string; icon: string; color: string; prompt?: string };
 
+export type McpToolEntry = {
+  id: string;
+  label: string;
+  icon: string;
+  color: string;
+  toolName: string;
+  placeholder: string;
+  argKey?: string;
+};
+
 export const LARK_TOOLS: ToolEntry[] = [
   { id: "add-contact", label: "Add Contact", icon: "user-plus", color: "#10b981", prompt: "add contact [name] [phone]" },
   { id: "list-contacts", label: "Contacts", icon: "users", color: "#3b82f6", prompt: "list contacts" },
@@ -10,16 +20,12 @@ export const LARK_TOOLS: ToolEntry[] = [
   { id: "send-sms", label: "SMS", icon: "message", color: "#6366f1", prompt: "send sms to [name] [message]" },
   { id: "open-camera", label: "Camera", icon: "camera", color: "#06b6d4", prompt: "open camera" },
   { id: "group-call", label: "Group Call", icon: "phone-call", color: "#f59e0b", prompt: "group call [names] and say [message]" },
-  { id: "agent-chat-mcp__register", label: "Agent Chat: Register", icon: "message-square", color: "#8b5cf6", prompt: "register as agent [name]" },
-  { id: "agent-chat-mcp__send-message", label: "Agent Chat: Send", icon: "send", color: "#a855f7", prompt: "send message to [agent] [message]" },
-  { id: "agent-chat-mcp__read-inbox", label: "Agent Chat: Inbox", icon: "inbox", color: "#7c3aed", prompt: "read inbox as [agent]" },
-  { id: "agent-chat-mcp__list-agents", label: "Agent Chat: Agents", icon: "users", color: "#6d28d9", prompt: "list agents" },
-  { id: "music-player-mcp__play", label: "Play Music", icon: "music", color: "#ec4899", prompt: "play [song name]" },
-  { id: "music-player-mcp__search", label: "Search Music", icon: "search", color: "#f472b6", prompt: "search music [query]" },
-  { id: "music-player-mcp__add-to-queue", label: "Music: Add to Queue", icon: "list", color: "#db2777", prompt: "add [song] to queue" },
-  { id: "youtube-mcp__play", label: "Play YouTube", icon: "video", color: "#ef4444", prompt: "play [video or search]" },
-  { id: "youtube-mcp__search", label: "Search YouTube", icon: "search", color: "#f87171", prompt: "search youtube [query]" },
-  { id: "youtube-mcp__add-to-queue", label: "YouTube: Add to Queue", icon: "list", color: "#dc2626", prompt: "add [video] to youtube queue" },
+];
+
+export const LARK_MCP_TOOLS: McpToolEntry[] = [
+  { id: "music", label: "Music", icon: "music", color: "#ec4899", toolName: "music-player-mcp__play", placeholder: "Search or play a song..." },
+  { id: "video", label: "Video", icon: "video", color: "#ef4444", toolName: "youtube-mcp__play", placeholder: "Search or play a video..." },
+  { id: "message", label: "Agent Chat", icon: "message-square", color: "#8b5cf6", toolName: "agent-chat-mcp__list-agents", placeholder: "e.g. list agents, read inbox as [name]..." },
 ];
 
 export const LARK_ICONS: Record<string, JSX.Element> = {

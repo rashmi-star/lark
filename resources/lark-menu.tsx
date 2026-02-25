@@ -1,7 +1,7 @@
 import { useState, useEffect } from "react";
 import { McpUseProvider, useWidget, useWidgetTheme, type WidgetMetadata } from "mcp-use/react";
 import { z } from "zod";
-import { LARK_TOOLS, LARK_ICONS } from "../lib/lark-tools";
+import { LARK_TOOLS, LARK_MCP_TOOLS, LARK_ICONS } from "../lib/lark-tools";
 
 const propSchema = z.object({
   open: z.boolean().optional().describe("Whether menu is open"),
@@ -34,10 +34,12 @@ function Icon({ name, size = 20, color = "currentColor" }: { name: string; size?
 }
 
 function LarkMenuContent() {
-  const { displayMode } = useWidget<Props>();
+  const { displayMode, sendFollowUpMessage, callTool } = useWidget<Props>();
   const theme = useWidgetTheme();
   const isDark = theme === "dark";
   const [expanded, setExpanded] = useState(true);
+  const [activeMcp, setActiveMcp] = useState<string | null>(null);
+  const [mcpInput, setMcpInput] = useState("");
 
   const bg = isDark
     ? "linear-gradient(135deg, rgba(15,23,42,0.98) 0%, rgba(30,41,59,0.95) 100%)"
@@ -126,45 +128,166 @@ function LarkMenuContent() {
       </div>
 
       <div style={{ padding: expanded ? "8px 12px 16px" : "8px" }}>
-        {LARK_TOOLS.map((tool, i) => (
-          <div
-            key={tool.id}
-            className="lark-tool-item"
-            style={{
-              display: "flex",
-              alignItems: "center",
-              gap: 12,
-              padding: expanded ? "10px 12px" : "12px",
-              borderRadius: 10,
-              cursor: "default",
-              transition: "background 0.15s ease",
-              animation: "lark-slide-in 0.3s ease forwards",
-              animationDelay: `${i * 0.03}s`,
-            }}
-          >
+        {LARK_TOOLS.map((tool, i) => {
+          const handleClick = async () => {
+            const prompt = tool.prompt || tool.id.replace(/-/g, " ");
+            try {
+              if (sendFollowUpMessage) {
+                await sendFollowUpMessage(prompt);
+              } else if (callTool && ["list-contacts", "open-camera"].includes(tool.id)) {
+                await callTool(tool.id, {});
+              }
+            } catch (e) {
+              console.warn("Lark menu action failed:", e);
+            }
+          };
+          return (
             <div
+              key={tool.id}
+              role="button"
+              tabIndex={0}
+              onClick={handleClick}
+              onKeyDown={(e) => e.key === "Enter" && handleClick()}
+              className="lark-tool-item"
               style={{
-                width: 40,
-                height: 40,
-                borderRadius: 10,
-                background: `${tool.color}20`,
-                border: `1px solid ${tool.color}40`,
                 display: "flex",
                 alignItems: "center",
-                justifyContent: "center",
-                flexShrink: 0,
+                gap: 12,
+                padding: expanded ? "10px 12px" : "12px",
+                borderRadius: 10,
+                cursor: "pointer",
+                transition: "background 0.15s ease",
+                animation: "lark-slide-in 0.3s ease forwards",
+                animationDelay: `${i * 0.03}s`,
               }}
             >
-              <Icon name={tool.icon} size={20} color={tool.color} />
-            </div>
-            {expanded && (
-              <div style={{ minWidth: 0 }}>
-                <div style={{ fontSize: 13, fontWeight: 600, color: textColor }}>{tool.label}</div>
-                <div style={{ fontSize: 11, color: mutedColor }}>Say &quot;{tool.prompt || tool.id.replace(/-/g, " ")}&quot;</div>
+              <div
+                style={{
+                  width: 40,
+                  height: 40,
+                  borderRadius: 10,
+                  background: `${tool.color}20`,
+                  border: `1px solid ${tool.color}40`,
+                  display: "flex",
+                  alignItems: "center",
+                  justifyContent: "center",
+                  flexShrink: 0,
+                }}
+              >
+                <Icon name={tool.icon} size={20} color={tool.color} />
               </div>
-            )}
-          </div>
-        ))}
+              {expanded && (
+                <div style={{ minWidth: 0 }}>
+                  <div style={{ fontSize: 13, fontWeight: 600, color: textColor }}>{tool.label}</div>
+                  <div style={{ fontSize: 11, color: mutedColor }}>Say &quot;{tool.prompt || tool.id.replace(/-/g, " ")}&quot;</div>
+                </div>
+              )}
+            </div>
+          );
+        })}
+
+        {LARK_MCP_TOOLS.map((mcp, i) => {
+          const isActive = activeMcp === mcp.id;
+          const handleMcpSubmit = async () => {
+            const val = mcpInput.trim();
+            try {
+              if (mcp.id === "message") {
+                if (val) {
+                  if (sendFollowUpMessage) await sendFollowUpMessage(val);
+                } else if (callTool) {
+                  await callTool(mcp.toolName, {});
+                }
+              } else if (callTool && val) {
+                const argKey = mcp.argKey || "query";
+                await callTool(mcp.toolName, { [argKey]: val });
+              }
+              setMcpInput("");
+              setActiveMcp(null);
+            } catch (e) {
+              console.warn("Lark MCP action failed:", e);
+            }
+          };
+          return (
+            <div key={mcp.id} style={{ animation: "lark-slide-in 0.3s ease forwards", animationDelay: `${(LARK_TOOLS.length + i) * 0.03}s` }}>
+              <div
+                role="button"
+                tabIndex={0}
+                onClick={() => setActiveMcp(isActive ? null : mcp.id)}
+                onKeyDown={(e) => e.key === "Enter" && setActiveMcp(isActive ? null : mcp.id)}
+                className="lark-tool-item"
+                style={{
+                  display: "flex",
+                  alignItems: "center",
+                  gap: 12,
+                  padding: expanded ? "10px 12px" : "12px",
+                  borderRadius: 10,
+                  cursor: "pointer",
+                  transition: "background 0.15s ease",
+                  background: isActive ? (isDark ? "rgba(255,255,255,0.06)" : "rgba(0,0,0,0.04)") : undefined,
+                }}
+              >
+                <div
+                  style={{
+                    width: 40,
+                    height: 40,
+                    borderRadius: 10,
+                    background: `${mcp.color}20`,
+                    border: `1px solid ${mcp.color}40`,
+                    display: "flex",
+                    alignItems: "center",
+                    justifyContent: "center",
+                    flexShrink: 0,
+                  }}
+                >
+                  <Icon name={mcp.icon} size={20} color={mcp.color} />
+                </div>
+                {expanded && (
+                  <div style={{ minWidth: 0, flex: 1 }}>
+                    <div style={{ fontSize: 13, fontWeight: 600, color: textColor }}>{mcp.label}</div>
+                    <div style={{ fontSize: 11, color: mutedColor }}>{isActive ? "Type and press Enter" : "Click to search"}</div>
+                  </div>
+                )}
+              </div>
+              {expanded && isActive && (
+                <div style={{ padding: "0 12px 12px 62px", display: "flex", gap: 8, alignItems: "center" }}>
+                  <input
+                    type="text"
+                    value={mcpInput}
+                    onChange={(e) => setMcpInput(e.target.value)}
+                    onKeyDown={(e) => e.key === "Enter" && handleMcpSubmit()}
+                    placeholder={mcp.placeholder}
+                    autoFocus
+                    style={{
+                      flex: 1,
+                      padding: "8px 12px",
+                      borderRadius: 8,
+                      border: `1px solid ${borderColor}`,
+                      background: isDark ? "rgba(0,0,0,0.3)" : "rgba(255,255,255,0.8)",
+                      color: textColor,
+                      fontSize: 13,
+                      outline: "none",
+                    }}
+                  />
+                  <button
+                    onClick={handleMcpSubmit}
+                    style={{
+                      padding: "8px 14px",
+                      borderRadius: 8,
+                      border: "none",
+                      background: mcp.color,
+                      color: "#fff",
+                      fontSize: 12,
+                      fontWeight: 600,
+                      cursor: "pointer",
+                    }}
+                  >
+                    Go
+                  </button>
+                </div>
+              )}
+            </div>
+          );
+        })}
       </div>
     </div>
   );
