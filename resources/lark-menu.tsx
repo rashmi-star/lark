@@ -1,7 +1,7 @@
 import { useState, useEffect } from "react";
 import { McpUseProvider, useWidget, useWidgetTheme, type WidgetMetadata } from "mcp-use/react";
 import { z } from "zod";
-import { LARK_TOOLS, LARK_ICONS } from "./lark-tools";
+import { LARK_TOOLS, LARK_ICONS } from "../lib/lark-tools";
 
 const propSchema = z.object({
   open: z.boolean().optional().describe("Whether menu is open"),
